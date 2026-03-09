@@ -6,7 +6,6 @@ import {
   Param,
   Patch,
   Post,
-  UsePipes,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import {
@@ -32,14 +31,15 @@ export class TodosController {
   }
 
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateTodoSchema))
-  create(@Body() body: CreateTodoInput) {
+  create(@Body(new ZodValidationPipe(CreateTodoSchema)) body: CreateTodoInput) {
     return this.todosService.create(body);
   }
 
   @Patch(':id')
-  @UsePipes(new ZodValidationPipe(UpdateTodoSchema))
-  update(@Param('id') id: string, @Body() body: UpdateTodoInput) {
+  update(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateTodoSchema)) body: UpdateTodoInput,
+  ) {
     return this.todosService.update(id, body);
   }
 
