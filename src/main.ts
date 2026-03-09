@@ -7,6 +7,7 @@ import type { Env } from './config/app.config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { ZodValidationPipe } from 'nestjs-zod';
+import chalk from 'chalk';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -67,7 +68,10 @@ async function bootstrap() {
 
   await app.listen(config.get('PORT', { infer: true }));
 
-  Logger.log(`Application is running on: ${await app.getUrl()}`);
+  Logger.log(
+    `Application is running on: ${chalk.blue(await app.getUrl())}`,
+    'Bootstrap',
+  );
 }
 
 bootstrap().catch((err) => {
