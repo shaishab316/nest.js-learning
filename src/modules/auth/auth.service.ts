@@ -6,8 +6,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../infra/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
-import type { JwtPayload } from './jwt.strategy';
+import { existsSync, unlinkSync } from 'fs';
 import type { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
+import type { JwtPayload } from './jwt.strategy';
 
 @Injectable()
 export class AuthService {
@@ -44,15 +45,24 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
-    const user = await this.prisma.user.findUniqueOrThrow({
+    return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, name: true, createdAt: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        image: true,
+        createdAt: true,
+      },
     });
-    return user;
   }
 
-  async updateProfile(userId: string, dto: UpdateProfileDto) {
-    // check email conflict if changing email
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+    file?: Express.Multer.File,
+  ) {
+    // check email conflict
     if (dto.email) {
       const exists = await this.prisma.user.findFirst({
         where: { email: dto.email, NOT: { id: userId } },
@@ -60,19 +70,38 @@ export class AuthService {
       if (exists) throw new ConflictException('Email already in use');
     }
 
-    const user = await this.prisma.user.update({
-      where: { id: userId },
-      data: { ...dto },
-      select: { id: true, email: true, name: true, createdAt: true },
-    });
+    // if new image uploaded, delete old one
+    if (file) {
+      const current = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { image: true },
+      });
 
-    return user;
+      if (current?.image) {
+        const oldPath = `.${current.image}`; // e.g. ./uploads/avatars/old.jpg
+        if (existsSync(oldPath)) unlinkSync(oldPath);
+      }
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...dto,
+        // store as URL path: /uploads/avatars/uuid.jpg
+        ...(file ? { image: `/uploads/avatars/${file.filename}` } : {}),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        image: true,
+        createdAt: true,
+      },
+    });
   }
 
   private signToken(userId: string, email: string) {
     const payload: JwtPayload = { sub: userId, email };
-    return {
-      access_token: this.jwt.sign(payload),
-    };
+    return { access_token: this.jwt.sign(payload) };
   }
 }

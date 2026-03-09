@@ -1,6 +1,18 @@
-import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -9,6 +21,7 @@ import { AuthService } from './auth.service';
 import { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { avatarMulterOptions } from '../../common/config/multer.config';
 import type { JwtPayload } from './jwt.strategy';
 
 @ApiTags('Auth')
@@ -45,14 +58,27 @@ export class AuthController {
   @Patch('profile')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update current user profile' })
+  @UseInterceptors(FileInterceptor('image', avatarMulterOptions))
+  @ApiConsumes('multipart/form-data') // 👈 tells Scalar it's a file upload
+  @ApiOperation({ summary: 'Update profile — supports image upload' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'Shaishab' },
+        email: { type: 'string', example: 'shaishab@example.com' },
+        image: { type: 'string', format: 'binary' }, // 👈 file input in Scalar
+      },
+    },
+  })
   @ApiResponse({ status: 200, description: 'Updated profile' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 409, description: 'Email already in use' })
   updateProfile(
     @CurrentUser() user: JwtPayload & { id: string },
     @Body() dto: UpdateProfileDto,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.authService.updateProfile(user.id, dto);
+    return this.authService.updateProfile(user.id, dto, file);
   }
 }

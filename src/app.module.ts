@@ -5,6 +5,8 @@ import { PrismaModule } from './infra/prisma/prisma.module';
 import { validate as configValidate } from './config/app.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import path from 'node:path';
 
 @Module({
   imports: [
@@ -12,6 +14,12 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
       isGlobal: true,
       validate: configValidate,
     }),
+
+    ServeStaticModule.forRoot({
+      rootPath: path.join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
+
     PrismaModule,
     AuthModule,
     TodosModule,
