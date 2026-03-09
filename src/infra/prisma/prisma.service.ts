@@ -1,15 +1,17 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaLibSql } from '@prisma/adapter-libsql';
+import { ConfigService } from '@nestjs/config';
+import type { Env } from 'src/config/app.config';
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  constructor() {
+  constructor(config: ConfigService<Env, true>) {
     const adapter = new PrismaLibSql({
-      url: process.env['DATABASE_URL'] ?? 'file:./dev.db',
+      url: config.get('DATABASE_URL', { infer: true }),
     });
 
     super({ adapter });
