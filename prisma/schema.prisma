@@ -9,3 +9,11 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+model Todo {
+  id        String   @id @default(cuid())
+  title     String
+  status    String   @default("open") // open | done
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
