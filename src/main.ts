@@ -22,6 +22,7 @@ async function bootstrap() {
       `This API allows you to manage your todo items. You can create, read, update, and delete todos. Each todo has a title, description, and a completed status.`,
     )
     .setVersion(process.env.npm_package_version ?? '1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

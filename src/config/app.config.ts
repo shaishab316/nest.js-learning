@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  DATABASE_URL: z.string().default('file:./dev.db'),
-  PORT: z.coerce.number().default(3000),
+  DATABASE_URL: z.string('DATABASE_URL is required').default('file:./dev.db'),
+  PORT: z.coerce.number('PORT is required').default(3000),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
+  JWT_SECRET: z
+    .string('JWT_SECRET is required')
+    .min(32, 'JWT_SECRET must be at least 32 characters long'),
 });
 
 export type Env = z.infer<typeof envSchema>;
