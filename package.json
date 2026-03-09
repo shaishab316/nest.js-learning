@@ -2,9 +2,10 @@
   "name": "nest.js-learning",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "@shaishab316",
   "private": true,
   "license": "UNLICENSED",
+  "packageManager": "pnpm@11.6.2",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
