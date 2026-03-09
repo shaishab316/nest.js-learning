@@ -6,9 +6,12 @@ import { ConfigService } from '@nestjs/config';
 import type { Env } from './config/app.config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new ZodValidationPipe());
 
   const config = app.get(ConfigService<Env, true>);
 

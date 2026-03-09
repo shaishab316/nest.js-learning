@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
 export const TodoStatusSchema = z.enum(['open', 'done']);
 
@@ -11,5 +12,10 @@ export const UpdateTodoSchema = z.object({
   status: TodoStatusSchema.optional(),
 });
 
+// DTO classes — used for validation + Swagger docs, no duplication
+export class CreateTodoDto extends createZodDto(CreateTodoSchema) {}
+export class UpdateTodoDto extends createZodDto(UpdateTodoSchema) {}
+
+// raw types still available if needed
 export type CreateTodoInput = z.infer<typeof CreateTodoSchema>;
 export type UpdateTodoInput = z.infer<typeof UpdateTodoSchema>;
