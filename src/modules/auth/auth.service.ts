@@ -33,10 +33,20 @@ export class AuthService {
       data: { email: dto.email, password: hashed, name: dto.name },
     });
 
-    await this.mailQueue.add(MailJobs.WELCOME, {
-      email: user.email,
-      name: user.name,
-    });
+    await this.mailQueue.add(
+      MailJobs.WELCOME,
+      {
+        email: user.email,
+        name: user.name,
+      },
+      {
+        delay: 60_000, // 1 minute in ms
+        attempts: 3, // retry 3 times
+        backoff: { type: 'exponential', delay: 5000 }, // wait 5s, 10s, 20s between retries
+        removeOnComplete: { count: 1000, age: 24 * 60 * 60 },
+        removeOnFail: { count: 500 },
+      },
+    );
 
     return this.signToken(user.id, user.email, user.role as Role);
   }

@@ -10,6 +10,10 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ChatModule } from './modules/chat/chat.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
+import { MAIL_QUEUE } from './common/mail/mail.constants';
 
 @Module({
   imports: [
@@ -21,6 +25,16 @@ import { BullModule } from '@nestjs/bullmq';
     ServeStaticModule.forRoot({
       rootPath: path.join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
+    }),
+
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
+    }),
+
+    BullBoardModule.forFeature({
+      name: MAIL_QUEUE,
+      adapter: BullMQAdapter,
     }),
 
     BullModule.forRootAsync({
