@@ -3,9 +3,9 @@ import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { SendMessageDto, GetMessagesDto } from './dto/chat.schemas';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import type { JwtPayload } from '../auth/jwt.strategy';
+import type { JwtPayload } from '../../common/strategy/jwt.strategy';
 
 @ApiTags('Chat')
 @ApiBearerAuth()

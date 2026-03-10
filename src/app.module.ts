@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ChatModule } from './modules/chat/chat.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ChatModule } from './modules/chat/chat.module';
     AuthModule,
     TodosModule,
     ChatModule,
+    AdminModule,
   ],
 })
 export class AppModule implements NestModule {

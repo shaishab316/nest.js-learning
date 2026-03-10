@@ -15,7 +15,7 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
 import type { SendMessageDto } from './dto/chat.schemas';
-import type { JwtPayload } from '../auth/jwt.strategy';
+import type { JwtPayload } from '../../common/strategy/jwt.strategy';
 
 // typed socket data
 interface SocketData {

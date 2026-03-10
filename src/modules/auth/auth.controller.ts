@@ -19,10 +19,10 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { avatarMulterOptions } from '../../common/config/multer.config';
-import type { JwtPayload } from './jwt.strategy';
+import type { JwtPayload } from '../../common/strategy/jwt.strategy';
 
 @ApiTags('Auth')
 @Controller('auth')

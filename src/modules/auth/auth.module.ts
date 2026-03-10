@@ -4,7 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from '../../common/strategy/jwt.strategy';
 import type { Env } from '../../config/app.config';
 import { MailModule } from 'src/common/mail/mail.module';
 

@@ -5,11 +5,12 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../infra/prisma/prisma.service';
+import { MailerService } from '@nestjs-modules/mailer';
 import * as bcrypt from 'bcryptjs';
 import { existsSync, unlinkSync } from 'fs';
 import type { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
-import type { JwtPayload } from './jwt.strategy';
-import { MailerService } from '@nestjs-modules/mailer';
+import { Role } from '../../common/decorators/roles.decorator';
+import { JwtPayload } from 'src/common/strategy/jwt.strategy';
 
 @Injectable()
 export class AuthService {
@@ -26,26 +27,20 @@ export class AuthService {
     if (exists) throw new ConflictException('Email already in use');
 
     const hashed = await bcrypt.hash(dto.password, 10);
-
     const user = await this.prisma.user.create({
       data: { email: dto.email, password: hashed, name: dto.name },
     });
 
-    // 👇 send welcome email
     void this.mailer
       .sendMail({
         to: user.email,
         subject: 'Welcome!',
         text: `Hello, ${user.name ?? user.email}. Welcome to Todo App!`,
       })
-      .then(() => {
-        console.log(`Welcome email sent to ${user.email}`);
-      })
-      .catch((err) => {
-        console.error(`Failed to send welcome email to ${user.email}:`, err);
-      });
+      .then(() => console.log(`Welcome email sent to ${user.email}`))
+      .catch((err) => console.error(`Failed to send welcome email:`, err));
 
-    return this.signToken(user.id, user.email);
+    return this.signToken(user.id, user.email, user.role as Role);
   }
 
   async login(dto: LoginDto) {
@@ -57,7 +52,7 @@ export class AuthService {
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
 
-    return this.signToken(user.id, user.email);
+    return this.signToken(user.id, user.email, user.role as Role);
   }
 
   async getProfile(userId: string) {
@@ -68,6 +63,7 @@ export class AuthService {
         email: true,
         name: true,
         image: true,
+        role: true,
         createdAt: true,
       },
     });
@@ -78,7 +74,6 @@ export class AuthService {
     dto: UpdateProfileDto,
     file?: Express.Multer.File,
   ) {
-    // check email conflict
     if (dto.email) {
       const exists = await this.prisma.user.findFirst({
         where: { email: dto.email, NOT: { id: userId } },
@@ -86,15 +81,13 @@ export class AuthService {
       if (exists) throw new ConflictException('Email already in use');
     }
 
-    // if new image uploaded, delete old one
     if (file) {
       const current = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { image: true },
       });
-
       if (current?.image) {
-        const oldPath = `.${current.image}`; // e.g. ./uploads/avatars/old.jpg
+        const oldPath = `.${current.image}`;
         if (existsSync(oldPath)) unlinkSync(oldPath);
       }
     }
@@ -103,7 +96,6 @@ export class AuthService {
       where: { id: userId },
       data: {
         ...dto,
-        // store as URL path: /uploads/avatars/uuid.jpg
         ...(file ? { image: `/uploads/avatars/${file.filename}` } : {}),
       },
       select: {
@@ -111,13 +103,14 @@ export class AuthService {
         email: true,
         name: true,
         image: true,
+        role: true,
         createdAt: true,
       },
     });
   }
 
-  private signToken(userId: string, email: string) {
-    const payload: JwtPayload = { sub: userId, email };
+  private signToken(userId: string, email: string, role: Role) {
+    const payload: JwtPayload = { sub: userId, email, role };
     return { access_token: this.jwt.sign(payload) };
   }
 }
