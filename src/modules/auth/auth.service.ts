@@ -9,8 +9,8 @@ import * as bcrypt from 'bcryptjs';
 import { existsSync, unlinkSync } from 'fs';
 import type { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
 import { Role } from '../../common/decorators/roles.decorator';
-import { JwtPayload } from 'src/common/strategy/jwt.strategy';
-import { MAIL_QUEUE, MailJobs } from 'src/common/mail/mail.constants';
+import { JwtPayload } from '../../common/strategy/jwt.strategy';
+import { MAIL_QUEUE, MailJobs } from '../../common/mail/mail.constants';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 
