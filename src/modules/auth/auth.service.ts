@@ -5,19 +5,21 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../infra/prisma/prisma.service';
-import { MailerService } from '@nestjs-modules/mailer';
 import * as bcrypt from 'bcryptjs';
 import { existsSync, unlinkSync } from 'fs';
 import type { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
 import { Role } from '../../common/decorators/roles.decorator';
 import { JwtPayload } from 'src/common/strategy/jwt.strategy';
+import { MAIL_QUEUE, MailJobs } from 'src/common/mail/mail.constants';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
-    private readonly mailer: MailerService,
+    @InjectQueue(MAIL_QUEUE) private readonly mailQueue: Queue,
   ) {}
 
   async signup(dto: SignupDto) {
@@ -31,14 +33,10 @@ export class AuthService {
       data: { email: dto.email, password: hashed, name: dto.name },
     });
 
-    void this.mailer
-      .sendMail({
-        to: user.email,
-        subject: 'Welcome!',
-        text: `Hello, ${user.name ?? user.email}. Welcome to Todo App!`,
-      })
-      .then(() => console.log(`Welcome email sent to ${user.email}`))
-      .catch((err) => console.error(`Failed to send welcome email:`, err));
+    await this.mailQueue.add(MailJobs.WELCOME, {
+      email: user.email,
+      name: user.name,
+    });
 
     return this.signToken(user.id, user.email, user.role as Role);
   }

@@ -1,6 +1,9 @@
-import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { BullModule } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
+import { MailProcessor } from './mail.processor';
+import { MAIL_QUEUE } from './mail.constants';
 import type { Env } from '../../config/app.config';
 
 @Module({
@@ -17,11 +20,14 @@ import type { Env } from '../../config/app.config';
           },
         },
         defaults: {
-          from: '"Todo App" <shaishab316@gmail.com>',
+          from: '"Todo App" <noreply@todoapp.com>',
         },
       }),
     }),
+
+    BullModule.registerQueue({ name: MAIL_QUEUE }),
   ],
-  exports: [MailerModule],
+  providers: [MailProcessor],
+  exports: [BullModule],
 })
 export class MailModule {}
