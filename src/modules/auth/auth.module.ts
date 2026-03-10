@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import type { Env } from '../../config/app.config';
+import { MailModule } from 'src/common/mail/mail.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import type { Env } from '../../config/app.config';
         signOptions: { expiresIn: '7d' },
       }),
     }),
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

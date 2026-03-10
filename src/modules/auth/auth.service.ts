@@ -9,12 +9,14 @@ import * as bcrypt from 'bcryptjs';
 import { existsSync, unlinkSync } from 'fs';
 import type { SignupDto, LoginDto, UpdateProfileDto } from './dto/auth.schemas';
 import type { JwtPayload } from './jwt.strategy';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly mailer: MailerService,
   ) {}
 
   async signup(dto: SignupDto) {
@@ -28,6 +30,20 @@ export class AuthService {
     const user = await this.prisma.user.create({
       data: { email: dto.email, password: hashed, name: dto.name },
     });
+
+    // 👇 send welcome email
+    void this.mailer
+      .sendMail({
+        to: user.email,
+        subject: 'Welcome!',
+        text: `Hello, ${user.name ?? user.email}. Welcome to Todo App!`,
+      })
+      .then(() => {
+        console.log(`Welcome email sent to ${user.email}`);
+      })
+      .catch((err) => {
+        console.error(`Failed to send welcome email to ${user.email}:`, err);
+      });
 
     return this.signToken(user.id, user.email);
   }

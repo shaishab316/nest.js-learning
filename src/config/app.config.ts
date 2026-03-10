@@ -9,6 +9,11 @@ const envSchema = z.object({
   JWT_SECRET: z
     .string('JWT_SECRET is required')
     .min(32, 'JWT_SECRET must be at least 32 characters long'),
+
+  MAIL_HOST: z.string('MAIL_HOST is required'),
+  MAIL_PORT: z.coerce.number('MAIL_PORT is required'),
+  MAIL_USER: z.string('MAIL_USER is required'),
+  MAIL_PASS: z.string('MAIL_PASS is required'),
 });
 
 export type Env = z.infer<typeof envSchema>;
