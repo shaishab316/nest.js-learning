@@ -17,6 +17,11 @@ model User {
   image     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  chats_a    Chat[]    @relation("ChatUserA")
+  chats_b    Chat[]    @relation("ChatUserB")
+  messages_s Message[] @relation("SentMessages")
+  messages_r Message[] @relation("ReceivedMessages")
 }
 
 model Todo {
@@ -25,4 +30,32 @@ model Todo {
   status    String   @default("open") // open | done
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// one Chat per unique pair of users
+model Chat {
+  id        String   @id @default(cuid())
+  userAId   String
+  userBId   String
+  createdAt DateTime @default(now())
+
+  userA    User      @relation("ChatUserA", fields: [userAId], references: [id])
+  userB    User      @relation("ChatUserB", fields: [userBId], references: [id])
+  messages Message[]
+
+  @@unique([userAId, userBId]) // prevent duplicate chats
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  chatId     String
+  senderId   String
+  receiverId String
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  chat     Chat @relation(fields: [chatId], references: [id])
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
 }

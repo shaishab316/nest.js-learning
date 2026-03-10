@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TodosModule } from './modules/todos/todos.module';
@@ -6,7 +7,7 @@ import { validate as configValidate } from './config/app.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import path from 'node:path';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import path from 'node:path';
     PrismaModule,
     AuthModule,
     TodosModule,
+    ChatModule,
   ],
 })
 export class AppModule implements NestModule {
