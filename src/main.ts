@@ -9,9 +9,14 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 import { ZodValidationPipe } from 'nestjs-zod';
 import chalk from 'chalk';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './common/config/winston.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(winstonConfig()),
+    bufferLogs: true,
+  });
 
   app.useGlobalPipes(new ZodValidationPipe());
   app.useGlobalInterceptors(new ResponseInterceptor());
