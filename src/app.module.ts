@@ -41,8 +41,7 @@ import { MAIL_QUEUE } from './common/mail/mail.constants';
       inject: [ConfigService],
       useFactory: (config: ConfigService<Env, true>) => ({
         connection: {
-          host: config.get('REDIS_HOST', { infer: true }),
-          port: config.get('REDIS_PORT', { infer: true }),
+          url: config.get('REDIS_URL', { infer: true }),
         },
       }),
     }),

@@ -14,8 +14,7 @@ const envSchema = z.object({
   MAIL_PORT: z.coerce.number('MAIL_PORT is required'),
   MAIL_USER: z.string('MAIL_USER is required'),
   MAIL_PASS: z.string('MAIL_PASS is required'),
-  REDIS_HOST: z.string('REDIS_HOST is required'),
-  REDIS_PORT: z.coerce.number('REDIS_PORT is required'),
+  REDIS_URL: z.string('REDIS_URL is required'),
 });
 
 export type Env = z.infer<typeof envSchema>;
