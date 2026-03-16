@@ -14,6 +14,9 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { MAIL_QUEUE } from './common/mail/mail.constants';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { throttlerConfig } from './common/config/throttler.config';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -21,6 +24,8 @@ import { MAIL_QUEUE } from './common/mail/mail.constants';
       isGlobal: true,
       validate: configValidate,
     }),
+
+    ThrottlerModule.forRoot(throttlerConfig),
 
     ServeStaticModule.forRoot({
       rootPath: path.join(process.cwd(), 'uploads'),
@@ -51,6 +56,13 @@ import { MAIL_QUEUE } from './common/mail/mail.constants';
     TodosModule,
     ChatModule,
     AdminModule,
+  ],
+
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard, // Apply throttler globally
+    },
   ],
 })
 export class AppModule implements NestModule {
