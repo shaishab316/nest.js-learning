@@ -17,6 +17,7 @@ import { MAIL_QUEUE } from './common/mail/mail.constants';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { throttlerConfig } from './common/config/throttler.config';
 import { APP_GUARD } from '@nestjs/core';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { APP_GUARD } from '@nestjs/core';
     TodosModule,
     ChatModule,
     AdminModule,
+    HealthModule,
   ],
 
   providers: [
