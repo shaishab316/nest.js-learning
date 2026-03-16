@@ -8,11 +8,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { ZodValidationPipe } from 'nestjs-zod';
 import chalk from 'chalk';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ZodValidationPipe());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   const config = app.get(ConfigService<Env, true>);
 
