@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access */
 import {
   Injectable,
   NestInterceptor,
@@ -11,14 +10,20 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const { statusCode } = context.switchToHttp().getResponse();
+    const res = context.switchToHttp().getResponse();
 
-    return next
-      .handle()
-      .pipe(map((data) => this.buildResponse(data, statusCode as number)));
+    return next.handle().pipe(map((data) => this.buildResponse(data, res)));
   }
 
-  private buildResponse(data: any, statusCode: number) {
+  private buildResponse(data: any, res: any) {
+    const statusCode = res.statusCode as number;
+
+    if (data?.__cache) {
+      res.setHeader('X-Cache', data.__cache);
+      const { __cache, ...rest } = data;
+      data = rest;
+    }
+
     if (data?.meta) {
       return {
         success: true,

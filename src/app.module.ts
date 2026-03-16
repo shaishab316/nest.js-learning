@@ -18,6 +18,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { throttlerConfig } from './common/config/throttler.config';
 import { APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './modules/health/health.module';
+import { AppCacheModule } from './infra/cache/cache.module';
 
 @Module({
   imports: [
@@ -27,6 +28,8 @@ import { HealthModule } from './modules/health/health.module';
     }),
 
     ThrottlerModule.forRoot(throttlerConfig),
+
+    AppCacheModule,
 
     ServeStaticModule.forRoot({
       rootPath: path.join(process.cwd(), 'uploads'),
