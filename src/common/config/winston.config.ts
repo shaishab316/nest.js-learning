@@ -5,6 +5,12 @@ import 'winston-daily-rotate-file';
 export const winstonConfig = (): WinstonModuleOptions => {
   const isProduction = process.env.NODE_ENV === 'production';
 
+  const fileFormat = winston.format.combine(
+    winston.format.uncolorize(),
+    winston.format.timestamp(),
+    winston.format.json(),
+  );
+
   return {
     transports: [
       // Console transport (always enabled)
@@ -14,7 +20,7 @@ export const winstonConfig = (): WinstonModuleOptions => {
           winston.format.colorize(),
           winston.format.printf(
             ({ timestamp, level, message, context, trace }) => {
-              return `${timestamp} [${level}] ${context ? '[' + context + '] ' : ''}${message} ${trace ? '\n' + trace : ''}`;
+              return `${timestamp} [${level}] ${context ? '[' + context + '] ' : ''}${message}${trace ? '\n' + trace : ''}`;
             },
           ),
         ),
@@ -28,23 +34,16 @@ export const winstonConfig = (): WinstonModuleOptions => {
               datePattern: 'YYYY-MM-DD',
               maxSize: '20m',
               maxFiles: '14d',
-              format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-              ),
+              format: fileFormat,
             }),
 
-            // Separate error log file
             new winston.transports.DailyRotateFile({
               filename: 'logs/error-%DATE%.log',
               datePattern: 'YYYY-MM-DD',
               maxSize: '20m',
               maxFiles: '30d',
               level: 'error',
-              format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-              ),
+              format: fileFormat,
             }),
           ]
         : []),
