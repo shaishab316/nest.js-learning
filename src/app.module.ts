@@ -19,6 +19,7 @@ import { throttlerConfig } from './common/config/throttler.config';
 import { APP_GUARD } from '@nestjs/core';
 import { HealthModule } from './modules/health/health.module';
 import { AppCacheModule } from './infra/cache/cache.module';
+import { AwsModule } from './modules/aws/aws.module';
 
 @Module({
   imports: [
@@ -61,6 +62,8 @@ import { AppCacheModule } from './infra/cache/cache.module';
     ChatModule,
     AdminModule,
     HealthModule,
+
+    AwsModule,
   ],
 
   providers: [
